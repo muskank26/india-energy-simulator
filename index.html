@@ -3,277 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>India Energy Scenario Simulator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>Energy Transition Insight Tool - What-If Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         :root {
             --primary: #1a365d;
-            --secondary: #2d3748;
-            --green: #38a169;
-            --green-light: #c6f6d5;
-            --coal: #4a5568;
-            --coal-light: #e2e8f0;
-            --blue: #3182ce;
-            --blue-light: #bee3f8;
-            --warning: #d69e2e;
-            --warning-light: #fefcbf;
-            --danger: #c53030;
-            --danger-light: #fed7d7;
-            --bg: #f7fafc;
-            --card-bg: #ffffff;
-            --text-primary: #1a202c;
-            --text-secondary: #718096;
+            --green: #22c55e;
+            --coal: #64748b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
             --border: #e2e8f0;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             background: var(--bg);
-            color: var(--text-primary);
+            color: var(--text);
             line-height: 1.6;
-            min-height: 100vh;
+            padding: 24px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
-        }
+        .container { max-width: 900px; margin: 0 auto; }
 
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        header p {
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-            font-size: 1rem;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        header { text-align: center; margin-bottom: 32px; }
+        header h1 { font-size: 1.75rem; color: var(--primary); margin-bottom: 8px; }
+        header p { color: var(--text-light); max-width: 600px; margin: 0 auto; }
 
         .card {
-            background: var(--card-bg);
+            background: var(--card);
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
 
-        .input-group {
-            margin-bottom: 24px;
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 16px;
         }
 
-        .input-group:last-of-type {
-            margin-bottom: 32px;
-        }
+        .grid { display: grid; gap: 20px; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
 
+        .input-group { margin-bottom: 16px; }
+        
         .input-label {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 12px;
+            align-items: center;
+            margin-bottom: 8px;
         }
-
-        .input-label span {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .input-value {
+        .input-label span { font-size: 0.9rem; font-weight: 500; }
+        .input-label .value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 500;
             color: var(--primary);
-        }
-
-        .slider-container {
-            position: relative;
         }
 
         input[type="range"] {
             width: 100%;
-            height: 8px;
+            height: 6px;
             -webkit-appearance: none;
-            appearance: none;
             background: var(--border);
-            border-radius: 4px;
-            outline: none;
+            border-radius: 3px;
             cursor: pointer;
         }
-
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             background: var(--primary);
             border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 2px 8px rgba(26, 54, 93, 0.3);
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-        }
-
-        .slider-marks {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px 24px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-
-        .btn:hover {
-            background: #2c5282;
-            transform: translateY(-1px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .results-section {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .chart-container {
-            height: 280px;
-            position: relative;
-        }
-
-        .metrics-grid {
+        .metrics {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
+        @media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
 
-        @media (max-width: 768px) {
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .metric-card {
-            background: var(--card-bg);
+        .metric {
+            background: var(--card);
             border-radius: 8px;
             padding: 16px;
             border-left: 4px solid var(--border);
         }
+        .metric.demand { border-left-color: #3b82f6; }
+        .metric.renewable { border-left-color: var(--green); }
+        .metric.coal { border-left-color: var(--coal); }
+        .metric.emissions { border-left-color: #ef4444; }
 
-        .metric-card.renewable {
-            border-left-color: var(--green);
-        }
+        .metric-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); margin-bottom: 4px; }
+        .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 500; }
+        .metric-unit { font-size: 0.8rem; color: var(--text-light); margin-left: 4px; }
 
-        .metric-card.coal {
-            border-left-color: var(--coal);
-        }
+        .chart-container { height: 250px; margin-bottom: 20px; }
 
-        .metric-card.demand {
-            border-left-color: var(--blue);
-        }
-
-        .metric-card.emissions {
-            border-left-color: var(--danger);
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .metric-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .metric-unit {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-left: 4px;
-        }
-
-        .indicators-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        @media (max-width: 500px) {
-            .indicators-row {
-                grid-template-columns: 1fr;
-            }
-        }
+        .indicators { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        @media (max-width: 500px) { .indicators { grid-template-columns: 1fr; } }
 
         .indicator {
             display: flex;
@@ -283,122 +123,29 @@
             border-radius: 8px;
             font-size: 0.875rem;
         }
+        .indicator.green { background: #dcfce7; }
+        .indicator.yellow { background: #fef9c3; }
+        .indicator.red { background: #fee2e2; }
+        .indicator-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .indicator.green .indicator-icon { background: var(--green); color: white; }
+        .indicator.yellow .indicator-icon { background: #eab308; color: white; }
+        .indicator.red .indicator-icon { background: #ef4444; color: white; }
+        .indicator-title { font-weight: 600; margin-bottom: 2px; }
+        .indicator-value { font-size: 0.8rem; color: var(--text-light); }
 
-        .indicator-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .indicator.green {
-            background: var(--green-light);
-        }
-
-        .indicator.green .indicator-icon {
-            background: var(--green);
-            color: white;
-        }
-
-        .indicator.yellow {
-            background: var(--warning-light);
-        }
-
-        .indicator.yellow .indicator-icon {
-            background: var(--warning);
-            color: white;
-        }
-
-        .indicator.red {
-            background: var(--danger-light);
-        }
-
-        .indicator.red .indicator-icon {
-            background: var(--danger);
-            color: white;
-        }
-
-        .indicator-content {
-            flex: 1;
-        }
-
-        .indicator-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .indicator-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .section {
-            margin-bottom: 32px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .section-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .section-badge {
-            background: var(--primary);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
-
-        .insights-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 16px;
-        }
-
-        .insight-card {
-            background: var(--card-bg);
+        .insights { display: flex; flex-direction: column; gap: 12px; }
+        
+        .insight {
+            background: var(--card);
             border-radius: 8px;
-            padding: 20px;
+            padding: 16px;
             border-left: 4px solid var(--border);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .insight-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .insight-card.positive {
-            border-left-color: var(--green);
-        }
-
-        .insight-card.concern {
-            border-left-color: var(--warning);
-        }
-
-        .insight-card.critical {
-            border-left-color: var(--danger);
-        }
-
-        .insight-header {
             display: flex;
-            align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
         }
+        .insight.positive { border-left-color: var(--green); }
+        .insight.concern { border-left-color: #f59e0b; }
+        .insight.critical { border-left-color: #ef4444; }
 
         .insight-number {
             width: 28px;
@@ -409,563 +156,374 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 600;
+            flex-shrink: 0;
         }
+        .insight-content { flex: 1; }
+        .insight-title { font-weight: 600; margin-bottom: 4px; }
+        .insight-text { font-size: 0.875rem; color: var(--text-light); }
 
-        .insight-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .insight-description {
-            color: var(--text-secondary);
-            font-size: 0.9375rem;
-        }
-
-        .assumptions-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }
-
-        .assumptions-table th,
-        .assumptions-table td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .assumptions-table th {
-            background: var(--bg);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        .assumptions-table td {
-            font-size: 0.875rem;
-        }
-
-        .assumptions-table td:first-child {
-            font-weight: 500;
-        }
-
-        .assumptions-table td:nth-child(2) {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .doc-section {
-            background: var(--card-bg);
+        .analyst-summary {
+            background: linear-gradient(135deg, var(--primary), #2d4a7c);
+            color: white;
             border-radius: 12px;
             padding: 24px;
-            margin-bottom: 16px;
         }
+        .analyst-summary h3 { margin-bottom: 12px; font-size: 1rem; }
+        .analyst-summary p { font-size: 0.95rem; line-height: 1.7; opacity: 0.95; }
 
-        .doc-section h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
+        .doc-section { margin-top: 32px; }
+        .doc-section h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; }
+        .doc-section p { color: var(--text-light); margin-bottom: 12px; font-size: 0.9rem; }
 
-        .doc-section p {
-            color: var(--text-secondary);
-            font-size: 0.9375rem;
-            margin-bottom: 12px;
-        }
+        .assumptions { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .assumptions th, .assumptions td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        .assumptions th { background: var(--bg); font-weight: 600; color: var(--text-light); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+        .assumptions td code { font-family: 'JetBrains Mono', monospace; background: var(--bg); padding: 2px 6px; border-radius: 4px; }
 
-        .doc-section p:last-child {
-            margin-bottom: 0;
-        }
-
-        footer {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
+        footer { text-align: center; padding: 24px; color: var(--text-light); font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>India Energy Scenario Simulator</h1>
-            <p>Model how changes in renewable energy share and electricity demand affect India's energy landscape, carbon emissions, and supply security.</p>
+            <h1>Energy Transition Insight Tool</h1>
+            <p>What-If Analysis for Energy Market Scenarios. Adjust parameters to see how different energy mix scenarios impact emissions and supply balance.</p>
         </header>
 
-        <div class="main-grid">
-            <div class="card input-panel">
-                <div class="card-title">Scenario Parameters</div>
-                
+        <div class="card">
+            <div class="card-title">Scenario Parameters</div>
+            <div class="grid grid-2">
                 <div class="input-group">
                     <div class="input-label">
                         <span>Renewable Energy Share</span>
-                        <span class="input-value" id="renewableValue">25%</span>
+                        <span class="value" id="renewableValue">25%</span>
                     </div>
-                    <div class="slider-container">
-                        <input type="range" id="renewableSlider" min="5" max="60" value="25" step="1">
-                        <div class="slider-marks">
-                            <span>5%</span>
-                            <span>20%</span>
-                            <span>35%</span>
-                            <span>50%</span>
-                            <span>60%</span>
-                        </div>
-                    </div>
+                    <input type="range" id="renewableSlider" min="5" max="70" value="25" step="1">
                 </div>
-
                 <div class="input-group">
                     <div class="input-label">
                         <span>Electricity Demand Growth</span>
-                        <span class="input-value" id="demandValue">+5.0%</span>
+                        <span class="value" id="demandValue">+5.0%</span>
                     </div>
-                    <div class="slider-container">
-                        <input type="range" id="demandSlider" min="-5" max="15" value="5" step="0.5">
-                        <div class="slider-marks">
-                            <span>-5%</span>
-                            <span>0%</span>
-                            <span>5%</span>
-                            <span>10%</span>
-                            <span>15%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn" id="simulateBtn">Run Simulation</button>
-            </div>
-
-            <div class="results-section">
-                <div class="card">
-                    <div class="card-title">Energy Mix Distribution</div>
-                    <div class="chart-container">
-                        <canvas id="energyMixChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="metrics-grid">
-                    <div class="metric-card demand">
-                        <div class="metric-label">Total Demand</div>
-                        <div><span class="metric-value" id="totalDemand">1,575</span><span class="metric-unit">TWh</span></div>
-                    </div>
-                    <div class="metric-card renewable">
-                        <div class="metric-label">Renewable Gen</div>
-                        <div><span class="metric-value" id="renewableGen">394</span><span class="metric-unit">TWh</span></div>
-                    </div>
-                    <div class="metric-card coal">
-                        <div class="metric-label">Coal Gen</div>
-                        <div><span class="metric-value" id="coalGen">1,181</span><span class="metric-unit">TWh</span></div>
-                    </div>
-                    <div class="metric-card emissions">
-                        <div class="metric-label">CO2 Emissions</div>
-                        <div><span class="metric-value" id="emissions">969</span><span class="metric-unit">Mt</span></div>
-                    </div>
-                </div>
-
-                <div class="indicators-row">
-                    <div class="indicator yellow" id="emissionsIndicator">
-                        <div class="indicator-icon">💨</div>
-                        <div class="indicator-content">
-                            <div class="indicator-title">Emissions Status</div>
-                            <div class="indicator-value" id="emissionsStatus">Moderate - 969 Mt CO2</div>
-                        </div>
-                    </div>
-                    <div class="indicator yellow" id="supplyIndicator">
-                        <div class="indicator-icon">⚡</div>
-                        <div class="indicator-content">
-                            <div class="indicator-title">Supply-Demand Balance</div>
-                            <div class="indicator-value" id="supplyStatus">Slight deficit - 45 TWh</div>
-                        </div>
-                    </div>
+                    <input type="range" id="demandSlider" min="-5" max="15" value="5" step="0.5">
                 </div>
             </div>
         </div>
 
-        <section class="section">
-            <div class="section-header">
-                <h2>Key Insights</h2>
-                <span class="section-badge">Analysis</span>
+        <div class="metrics">
+            <div class="metric demand">
+                <div class="metric-label">Total Demand</div>
+                <div><span class="metric-value" id="totalDemand">1,575</span><span class="metric-unit">TWh</span></div>
             </div>
-            <div class="insights-grid" id="insightsContainer">
+            <div class="metric renewable">
+                <div class="metric-label">Renewable</div>
+                <div><span class="metric-value" id="renewableGen">394</span><span class="metric-unit">TWh</span></div>
             </div>
-        </section>
+            <div class="metric coal">
+                <div class="metric-label">Coal</div>
+                <div><span class="metric-value" id="coalGen">1,181</span><span class="metric-unit">TWh</span></div>
+            </div>
+            <div class="metric emissions">
+                <div class="metric-label">CO2 Emissions</div>
+                <div><span class="metric-value" id="emissions">969</span><span class="metric-unit">Mt</span></div>
+            </div>
+        </div>
 
-        <section class="section">
-            <div class="section-header">
-                <h2>Model Documentation</h2>
-                <span class="section-badge">Reference</span>
+        <div class="card">
+            <div class="card-title">Energy Mix Distribution</div>
+            <div class="chart-container">
+                <canvas id="energyChart"></canvas>
             </div>
+        </div>
 
-            <div class="doc-section">
-                <h3>How It Works (Simple Explanation)</h3>
-                <p>This simulator models India's electricity system with a few core relationships:</p>
-                <p><strong>1. Demand Calculation:</strong> Starting from India's current electricity demand of ~1,500 TWh, we apply the user's demand growth rate to project future demand.</p>
-                <p><strong>2. Energy Split:</strong> The selected renewable percentage determines how much of total demand is met by solar, wind, hydro, and other renewables. The remainder must come from coal (our model assumes coal fills the gap).</p>
-                <p><strong>3. Emissions:</strong> Only coal produces carbon emissions in this model. We multiply coal generation by India's grid emission factor (0.82 kg CO2 per kWh).</p>
-                <p><strong>4. Supply Check:</strong> We compare projected demand against estimated supply capacity to identify potential deficits.</p>
+        <div class="indicators">
+            <div class="indicator yellow" id="emissionsIndicator">
+                <div class="indicator-icon">📊</div>
+                <div>
+                    <div class="indicator-title">Emissions Level</div>
+                    <div class="indicator-value" id="emissionsStatus">Moderate - 969 Mt CO2</div>
+                </div>
+            </div>
+            <div class="indicator yellow" id="supplyIndicator">
+                <div class="indicator-icon">⚡</div>
+                <div>
+                    <div class="indicator-title">Supply-Demand Balance</div>
+                    <div class="indicator-value" id="supplyStatus">Slight deficit - 45 TWh</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Auto Insight Generator</div>
+            <div class="insights" id="insightsContainer"></div>
+        </div>
+
+        <div class="analyst-summary">
+            <h3>Analyst Summary</h3>
+            <p id="analystSummary">Based on current parameters: At 25% renewable share and 5% demand growth, coal remains the dominant energy source (75% of mix). The projected emissions of 969 Mt CO2 indicate significant decarbonization challenges ahead.</p>
+        </div>
+
+        <section class="doc-section">
+            <div class="card">
+                <h3>How It Works</h3>
+                <p>This tool models the relationship between renewable energy deployment, electricity demand, and carbon emissions using simplified but realistic calculations:</p>
+                <p><strong>1. Demand Projection:</strong> Starting from a baseline demand, we apply the demand growth rate to project future electricity needs.</p>
+                <p><strong>2. Energy Split:</strong> The renewable percentage determines how much demand is met by clean sources. The remainder is assumed to come from coal.</p>
+                <p><strong>3. Emissions Calculation:</strong> Carbon emissions are calculated from coal generation using India's grid emission factor.</p>
+                <p><strong>4. Supply Check:</strong> We compare projected demand against estimated generation capacity to identify potential gaps.</p>
             </div>
 
             <div class="card">
-                <div class="card-title">Key Assumptions</div>
-                <table class="assumptions-table">
+                <h3>Key Assumptions</h3>
+                <table class="assumptions">
                     <thead>
                         <tr>
                             <th>Parameter</th>
                             <th>Value</th>
-                            <th>Rationale</th>
+                            <th>Source/Basis</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Base Electricity Demand</td>
-                            <td>1,500 TWh</td>
-                            <td>India FY2024 actual demand (CEA data)</td>
-                        </tr>
-                        <tr>
-                            <td>Current Renewable Share</td>
-                            <td>25%</td>
-                            <td>Includes hydro, solar, wind (MNRE FY2024)</td>
+                            <td>Baseline Electricity Demand</td>
+                            <td><code>1,500 TWh</code></td>
+                            <td>India FY2024 (CEA)</td>
                         </tr>
                         <tr>
                             <td>Coal Emission Factor</td>
-                            <td>0.82 kg CO2/kWh</td>
-                            <td>India grid average (MoEFCC 2023)</td>
+                            <td><code>0.82 kg CO2/kWh</code></td>
+                            <td>India grid average (MoEFCC)</td>
                         </tr>
                         <tr>
-                            <td>Supply Capacity Utilization</td>
-                            <td>80%</td>
-                            <td>Average plant load factor across sources</td>
+                            <td>Generation Capacity</td>
+                            <td><code>450 GW</code></td>
+                            <td>All-India FY2024</td>
                         </tr>
                         <tr>
-                            <td>Base Installed Capacity</td>
-                            <td>450 GW</td>
-                            <td>All-India installed capacity FY2024</td>
+                            <td>Capacity Utilization</td>
+                            <td><code>80%</code></td>
+                            <td>Average plant load factor</td>
                         </tr>
                         <tr>
-                            <td>Demand Growth Impact</td>
-                            <td>+1% = +15 TWh</td>
-                            <td>Linear approximation for simplicity</td>
+                            <td>Hours per Year</td>
+                            <td><code>8,760</code></td>
+                            <td>Standard calculation</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <div class="card">
+                <h3>Interview Explanation</h3>
+                <p>"This What-If Analysis tool demonstrates the core challenge in energy transition: balancing renewable growth against persistent coal dependency. Even when renewables increase significantly, absolute coal generation can remain high due to growing demand. The tool highlights why energy storage, grid modernization, and demand-side management are critical complements to renewable expansion. It's a simplified model, but it captures the fundamental trade-offs that energy planners face daily."</p>
+            </div>
         </section>
 
         <footer>
-            India Energy Scenario Simulator • Educational tool for energy market analysis • Data based on publicly available sources (CEA, MNRE, MoEFCC)
+            Energy Transition Insight Tool | Educational model for energy market analysis | Data based on publicly available sources
         </footer>
     </div>
 
     <script>
-        const SIMULATOR = {
+        const MODEL = {
             config: {
                 baseDemand: 1500,
                 baseCapacity: 450,
-                utilizationRate: 0.80,
-                emissionFactor: 0.82,
-                renewableGap: 0.25
+                utilization: 0.80,
+                emissionFactor: 0.82
             },
 
-            state: {
-                renewableShare: 25,
-                demandGrowth: 5,
-                results: null
-            },
+            state: { renewableShare: 25, demandGrowth: 5 },
+            chart: null,
 
             init() {
                 this.bindEvents();
-                this.runSimulation();
+                this.calculate();
             },
 
             bindEvents() {
-                const renewableSlider = document.getElementById('renewableSlider');
-                const demandSlider = document.getElementById('demandSlider');
-                const renewableValue = document.getElementById('renewableValue');
-                const demandValue = document.getElementById('demandValue');
-                const simulateBtn = document.getElementById('simulateBtn');
+                const rs = document.getElementById('renewableSlider');
+                const ds = document.getElementById('demandSlider');
 
-                let debounceTimer;
+                rs.addEventListener('input', () => {
+                    this.state.renewableShare = parseInt(rs.value);
+                    document.getElementById('renewableValue').textContent = `${this.state.renewableShare}%`;
+                    this.calculate();
+                });
 
-                const updateRenewable = () => {
-                    this.state.renewableShare = parseInt(renewableSlider.value);
-                    renewableValue.textContent = `${this.state.renewableShare}%`;
-                };
-
-                const updateDemand = () => {
-                    const val = parseFloat(demandSlider.value);
+                ds.addEventListener('input', () => {
+                    const val = parseFloat(ds.value);
                     this.state.demandGrowth = val;
-                    demandValue.textContent = val >= 0 ? `+${val.toFixed(1)}%` : `${val.toFixed(1)}%`;
-                };
-
-                const debouncedRun = () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => this.runSimulation(), 300);
-                };
-
-                renewableSlider.addEventListener('input', () => {
-                    updateRenewable();
-                    debouncedRun();
+                    document.getElementById('demandValue').textContent = val >= 0 ? `+${val.toFixed(1)}%` : `${val.toFixed(1)}%`;
+                    this.calculate();
                 });
-
-                demandSlider.addEventListener('input', () => {
-                    updateDemand();
-                    debouncedRun();
-                });
-
-                simulateBtn.addEventListener('click', () => this.runSimulation());
             },
 
             calculate() {
-                const { baseDemand, baseCapacity, utilizationRate, emissionFactor } = this.config;
+                const { baseDemand, baseCapacity, utilization, emissionFactor } = this.config;
                 const { renewableShare, demandGrowth } = this.state;
 
-                const growthFactor = 1 + (demandGrowth / 100);
-                const totalDemand = baseDemand * growthFactor;
+                const growth = 1 + (demandGrowth / 100);
+                const totalDemand = baseDemand * growth;
                 const renewableGen = totalDemand * (renewableShare / 100);
                 const coalGen = totalDemand - renewableGen;
                 const emissions = coalGen * emissionFactor;
-                const supplyCapacity = baseCapacity * growthFactor;
-                const supplyGen = supplyCapacity * utilizationRate * 8760 / 1000;
-                const surplusDeficit = supplyGen - totalDemand;
+                const supplyGen = baseCapacity * growth * utilization * 8760 / 1000;
+                const balance = supplyGen - totalDemand;
 
-                return {
-                    totalDemand,
-                    renewableGen,
-                    coalGen,
-                    emissions,
-                    supplyCapacity,
-                    supplyGen,
-                    surplusDeficit,
-                    renewableShare,
-                    demandGrowth
-                };
+                this.updateUI({ totalDemand, renewableGen, coalGen, emissions, balance, renewableShare, demandGrowth });
             },
 
-            updateUI(results) {
-                document.getElementById('totalDemand').textContent = this.formatNumber(results.totalDemand);
-                document.getElementById('renewableGen').textContent = this.formatNumber(results.renewableGen);
-                document.getElementById('coalGen').textContent = this.formatNumber(results.coalGen);
-                document.getElementById('emissions').textContent = this.formatNumber(results.emissions);
+            updateUI(r) {
+                document.getElementById('totalDemand').textContent = Math.round(r.totalDemand).toLocaleString();
+                document.getElementById('renewableGen').textContent = Math.round(r.renewableGen).toLocaleString();
+                document.getElementById('coalGen').textContent = Math.round(r.coalGen).toLocaleString();
+                document.getElementById('emissions').textContent = Math.round(r.emissions).toLocaleString();
 
-                this.updateEmissionsIndicator(results.emissions);
-                this.updateSupplyIndicator(results.surplusDeficit);
-                this.updateChart(results);
-                this.generateInsights(results);
+                this.updateIndicators(r);
+                this.updateChart(r);
+                this.generateInsights(r);
+                this.generateSummary(r);
             },
 
-            formatNumber(num) {
-                return Math.round(num).toLocaleString('en-IN');
+            updateIndicators(r) {
+                const ei = document.getElementById('emissionsIndicator');
+                const es = document.getElementById('emissionsStatus');
+                ei.className = 'indicator ' + (r.emissions < 600 ? 'green' : r.emissions < 900 ? 'yellow' : 'red');
+                es.textContent = `${r.emissions < 600 ? 'Low' : r.emissions < 900 ? 'Moderate' : 'High'} - ${Math.round(r.emissions).toLocaleString()} Mt CO2`;
+
+                const si = document.getElementById('supplyIndicator');
+                const ss = document.getElementById('supplyStatus');
+                si.className = 'indicator ' + (r.balance > 50 ? 'green' : r.balance > -50 ? 'yellow' : 'red');
+                ss.textContent = r.balance > 50 ? `Surplus +${Math.round(r.balance).toLocaleString()} TWh` : 
+                                 r.balance > -50 ? `Balanced ${Math.round(r.balance).toLocaleString()} TWh` : 
+                                 `Deficit ${Math.round(Math.abs(r.balance)).toLocaleString()} TWh`;
             },
 
-            updateEmissionsIndicator(emissions) {
-                const indicator = document.getElementById('emissionsIndicator');
-                const status = document.getElementById('emissionsStatus');
-
-                indicator.className = 'indicator';
-
-                if (emissions < 600) {
-                    indicator.classList.add('green');
-                    status.textContent = `Low - ${this.formatNumber(emissions)} Mt CO2`;
-                } else if (emissions < 900) {
-                    indicator.classList.add('yellow');
-                    status.textContent = `Moderate - ${this.formatNumber(emissions)} Mt CO2`;
-                } else {
-                    indicator.classList.add('red');
-                    status.textContent = `High - ${this.formatNumber(emissions)} Mt CO2`;
-                }
-            },
-
-            updateSupplyIndicator(surplusDeficit) {
-                const indicator = document.getElementById('supplyIndicator');
-                const status = document.getElementById('supplyStatus');
-
-                indicator.className = 'indicator';
-
-                if (surplusDeficit > 50) {
-                    indicator.classList.add('green');
-                    status.textContent = `Surplus +${this.formatNumber(surplusDeficit)} TWh`;
-                } else if (surplusDeficit > -50) {
-                    indicator.classList.add('yellow');
-                    status.textContent = `Balanced ${this.formatNumber(surplusDeficit)} TWh`;
-                } else {
-                    indicator.classList.add('red');
-                    status.textContent = `Deficit ${this.formatNumber(Math.abs(surplusDeficit))} TWh`;
-                }
-            },
-
-            chart: null,
-
-            updateChart(results) {
-                const ctx = document.getElementById('energyMixChart').getContext('2d');
-
-                if (this.chart) {
-                    this.chart.destroy();
-                }
+            updateChart(r) {
+                const ctx = document.getElementById('energyChart').getContext('2d');
+                if (this.chart) this.chart.destroy();
 
                 this.chart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: ['Renewable Energy', 'Coal'],
                         datasets: [{
-                            data: [results.renewableGen, results.coalGen],
-                            backgroundColor: ['#38a169', '#4a5568'],
+                            data: [r.renewableGen, r.coalGen],
+                            backgroundColor: ['#22c55e', '#64748b'],
                             borderRadius: 6,
-                            barThickness: 80
+                            barThickness: 60
                         }]
                     },
                     options: {
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        const value = context.raw;
-                                        const total = results.totalDemand;
-                                        const percent = ((value / total) * 100).toFixed(1);
-                                        return `${this.formatNumber(value)} TWh (${percent}%)`;
-                                    }
-                                }
-                            }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                max: results.totalDemand * 1.1,
-                                ticks: {
-                                    callback: (value) => value + ' TWh',
-                                    font: {
-                                        family: "'JetBrains Mono', monospace",
-                                        size: 11
-                                    }
-                                },
-                                grid: {
-                                    color: '#e2e8f0'
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 13,
-                                        weight: 500
-                                    }
-                                },
-                                grid: {
-                                    display: false
-                                }
+                                max: r.totalDemand * 1.1,
+                                ticks: { callback: v => v + ' TWh' }
                             }
-                        },
-                        animation: {
-                            duration: 400,
-                            easing: 'easeOutQuart'
                         }
                     }
                 });
             },
 
-            generateInsights(results) {
+            generateInsights(r) {
                 const insights = [];
 
                 insights.push({
                     type: 'positive',
-                    title: 'Renewable Growth Impact',
-                    description: `At ${results.renewableShare}% renewables, ${this.formatNumber(results.renewableGen)} TWh of clean energy is generated, avoiding approximately ${this.formatNumber(results.renewableGen * this.config.emissionFactor)} Mt CO2 compared to all-coal scenario.`
+                    title: 'Renewable Contribution',
+                    text: `At ${r.renewableShare}% renewables, clean energy generation reaches ${Math.round(r.renewableGen).toLocaleString()} TWh, avoiding approximately ${Math.round(r.renewableGen * this.config.emissionFactor).toLocaleString()} Mt CO2 compared to an all-coal scenario.`
                 });
 
-                if (results.coalGen > results.renewableGen) {
-                    const coalRatio = ((results.coalGen / results.totalDemand) * 100).toFixed(0);
+                if (r.coalGen > r.renewableGen) {
+                    const coalPct = Math.round((r.coalGen / r.totalDemand) * 100);
                     insights.push({
                         type: 'concern',
-                        title: 'Coal Remains Dominant',
-                        description: `Despite ${results.renewableShare}% renewable share, coal still meets ${coalRatio}% of total demand (${this.formatNumber(results.coalGen)} TWh). This highlights the scale of renewable capacity additions needed for coal displacement.`
+                        title: 'Coal Dependency Persists',
+                        text: `Despite ${r.renewableShare}% renewable share, coal still meets ${coalPct}% of demand (${Math.round(r.coalGen).toLocaleString()} TWh). This indicates that even significant renewable growth may not immediately reduce coal reliance.`
                     });
                 }
 
-                if (results.demandGrowth > 5) {
-                    const additionalDemand = results.totalDemand - this.config.baseDemand;
-                    const additionalCoal = results.coalGen - (this.config.baseDemand * 0.75);
+                if (r.demandGrowth > 5) {
+                    const addDemand = Math.round(r.totalDemand - this.config.baseDemand);
                     insights.push({
                         type: 'concern',
-                        title: 'Demand Growth Challenge',
-                        description: `At ${results.demandGrowth}% demand growth, we need ${this.formatNumber(additionalDemand)} TWh additional supply. Without proportional renewable expansion, this adds ${this.formatNumber(Math.max(0, additionalCoal))} TWh to coal dependency.`
+                        title: 'Demand Growth Pressure',
+                        text: `At ${r.demandGrowth}% growth, additional ${addDemand.toLocaleString()} TWh must be generated. Without proportional renewable scaling, this increases absolute coal consumption and emissions.`
                     });
                 }
 
-                if (results.surplusDeficit < -30) {
+                if (r.balance < -30) {
                     insights.push({
                         type: 'critical',
                         title: 'Supply-Demand Gap',
-                        description: `Projected deficit of ${this.formatNumber(Math.abs(results.surplusDeficit))} TWh indicates insufficient generation capacity. This could lead to load shedding, higher imports, or emergency coal utilization.`
+                        text: `Projected deficit of ${Math.round(Math.abs(r.balance)).toLocaleString()} TWh signals potential capacity shortfalls, which could lead to reliability concerns or emergency coal ramping.`
                     });
                 }
 
-                if (results.emissions > 800) {
+                if (r.emissions > 800) {
                     insights.push({
                         type: 'critical',
-                        title: 'Emissions Trajectory',
-                        description: `At ${this.formatNumber(results.emissions)} Mt CO2 annually, emissions remain high. India's climate commitments require exploring carbon capture, nuclear expansion, or accelerated renewable deployment beyond ${results.renewableShare}%.`
+                        title: 'Emissions Trajectory Concern',
+                        text: `Emissions of ${Math.round(r.emissions).toLocaleString()} Mt CO2 remain high. Meeting climate targets requires accelerating renewable deployment beyond current levels.`
                     });
                 }
 
-                if (results.renewableShare < 35) {
+                if (r.renewableShare < 35) {
                     insights.push({
                         type: 'concern',
-                        title: 'Base Load Limitation',
-                        description: `Renewables below 35% struggle to meet base load due to intermittency. Solar peaks at midday; wind varies daily. Without storage or baseload alternatives, grid stability requires significant coal backup.`
+                        title: 'Base Load Challenge',
+                        text: `Below 35% renewable share, intermittency becomes a limiting factor. Solar and wind variability requires substantial backup capacity, typically coal-based.`
                     });
                 }
 
-                if (results.demandGrowth < 0) {
+                if (r.renewableShare > 50) {
                     insights.push({
                         type: 'positive',
-                        title: 'Demand Reduction Opportunity',
-                        description: `Negative demand growth of ${results.demandGrowth}% suggests potential for demand-side management, efficiency improvements, or economic slowdown, reducing pressure on generation capacity.`
+                        title: 'Major Clean Energy Milestone',
+                        text: `At ${r.renewableShare}%, renewables cross the 50% threshold - a significant transition milestone that begins to meaningfully impact emissions trajectory.`
                     });
                 }
 
-                const finalInsights = insights.slice(0, 5);
-                this.renderInsights(finalInsights);
+                this.renderInsights(insights.slice(0, 5));
             },
 
             renderInsights(insights) {
                 const container = document.getElementById('insightsContainer');
-                container.innerHTML = insights.map((insight, index) => `
-                    <div class="insight-card ${insight.type}">
-                        <div class="insight-header">
-                            <div class="insight-number">${index + 1}</div>
-                            <div class="insight-title">${insight.title}</div>
+                container.innerHTML = insights.map((ins, i) => `
+                    <div class="insight ${ins.type}">
+                        <div class="insight-number">${i + 1}</div>
+                        <div class="insight-content">
+                            <div class="insight-title">${ins.title}</div>
+                            <div class="insight-text">${ins.text}</div>
                         </div>
-                        <div class="insight-description">${insight.description}</div>
                     </div>
                 `).join('');
             },
 
-            runSimulation() {
-                this.state.results = this.calculate();
-                this.updateUI(this.state.results);
+            generateSummary(r) {
+                let summary = '';
+                const coalPct = Math.round((r.coalGen / r.totalDemand) * 100);
+                const trend = r.renewableShare > 40 ? 'significant progress' : 'gradual progress';
+                const challenge = r.demandGrowth > 6 ? 'rapidly growing demand' : 'stable demand';
+                const emissionLevel = r.emissions > 800 ? 'high emissions' : r.emissions > 600 ? 'moderate emissions' : 'improving emissions';
+
+                summary = `Current scenario shows ${coalPct}% coal dependency despite ${r.renewableShare}% renewable penetration. `;
+                summary += `With ${r.demandGrowth}% demand growth and ${emissionLevel}, the energy transition requires accelerated renewable capacity additions. `;
+                summary += `${r.balance < -30 ? 'Supply-demand gaps also indicate need for capacity investment.' : 'Supply remains relatively balanced.'}`;
+
+                document.getElementById('analystSummary').textContent = summary;
             }
         };
 
-        document.addEventListener('DOMContentLoaded', () => SIMULATOR.init());
+        document.addEventListener('DOMContentLoaded', () => MODEL.init());
     </script>
 </body>
 </html>
